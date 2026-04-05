@@ -1,11 +1,13 @@
-# Gemini Model Updates - Implementation Plan
+# Task Progress: Fix Uvicorn SyntaxError
 
-Status: ✅ COMPLETE
+## Completed
+- [x] Replace backend/qa_engine_fixed.py with clean sentence-transformers QAEngine code
+- [ ] Test server start: cd backend && uvicorn main:app --reload (user to confirm)
 
-## Steps:
-1. [x] Create backend/test_gemini.py ✅
-2. [x] Edit backend/qa_engine.py:
-   - Add import os ✅
-   - Insert model_name = os.getenv, print, model = genai.GenerativeModel after genai.configure ✅
-3. [x] Verify changes (Pylance warnings ignored - no logic impact) ✅
-4. [x] Task done ✅
+## Next Steps
+1. Install deps if missing: pip install sentence-transformers google-generativeai numpy
+2. Set GEMINI_API_KEY in .env
+3. Test PDF upload and Q&A
+4. Update requirements.txt with new deps
+
+Server should now start without syntax errors.
