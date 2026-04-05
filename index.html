@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat with PDF - AI-Powered Document Q&A</title>
+  <meta name="description" content="Upload PDFs and chat with your documents using Gemini AI. RAG-powered Q&A with source citations.">
+  <style>
+    /* Global Styles from frontend/app/globals.css */
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #1e40af;
+      --primary-light: #dbeafe;
+      --secondary: #10b981;
+      --danger: #ef4444;
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f9fafb;
+      --border: #e5e7eb;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 3rem 2rem;
+      border-radius: 0 0 20px 20px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .header h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .header p {
+      font-size: 1.2rem;
+      opacity: 0.95;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Features Section */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 4rem 0;
+    }
+
+    .feature-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--primary-light);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--primary-dark);
+    }
+
+    .feature-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    /* Demo Section */
+    .demo {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 3rem 2rem;
+      text-align: center;
+      margin: 4rem 0;
+    }
+
+    .demo video, .demo img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Quickstart */
+    .quickstart {
+      background: white;
+      border-radius: 12px;
+      padding: 3rem;
+      box-shadow: var(--shadow);
+      margin: 4rem 0;
+    }
+
+    .quickstart h2 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      color: var(--text-primary);
+      text-align: center;
+    }
+
+    .setup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+    }
+
+    .setup-section h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .setup-steps {
+      list-style: none;
+      counter-reset: step-counter;
+    }
+
+    .setup-steps li {
+      counter-increment: step-counter;
+      margin-bottom: 1rem;
+      padding-left: 2.5rem;
+      position: relative;
+    }
+
+    .setup-steps li::before {
+      content: counter(step-counter);
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: var(--primary);
+      color: white;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    pre {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.9rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--text-primary);
+      color: white;
+      text-align: center;
+      padding: 3rem 2rem;
+      margin-top: 4rem;
+    }
+
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin: 2rem 0;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .tech-tag {
+      background: rgba(255,255,255,0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .header {
+        padding: 2rem 1rem;
+      }
+
+      .setup-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>📄 Chat with PDF</h1>
+    <p>AI-powered document Q&A. Upload any PDF and chat with it using Gemini. Get precise answers with page citations.</p>
+  </header>
+
+  <div class="container">
+    <section class="features">
+      <div class="feature-card">
+        <div class="feature-icon">📤</div>
+        <h3>Upload PDF</h3>
+        <p>Drag & drop or select any PDF document. Supports multi-page files up to hundreds of pages.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>Ask Questions</h3>
+        <p>Natural language queries answered strictly from your document content. No hallucinations.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Source Citations</h3>
+        <p>Every answer includes exact page references and context snippets for verification.</p>
+      </div>
+    </section>
+
+    <section class="demo">
+      <h2 style="margin-bottom: 1.5rem; font-size: 2rem;">Try the Live Demo</h2>
+      <p style="max-width: 600px; margin: 0 auto 2rem; color: var(--text-secondary);">Upload a PDF and start chatting instantly. Backend runs locally for privacy.</p>
+      <!-- Replace with actual demo GIF/video -->
+      <div style="background: #f0f0f0; height: 400px; display: flex; align-items: center; justify-content: center; border-radius: 12px; color: var(--text-secondary);">
+        Demo Video / GIF Placeholder<br>
+        (Live app screenshot: PDF upload → chat interface)
+      </div>
+    </section>
+
+    <section class="quickstart">
+      <h2>🚀 Quickstart (Local Setup)</h2>
+      <div class="setup-grid">
+        <div class="setup-section">
+          <h3>Backend (FastAPI + Gemini)</h3>
+          <ol class="setup-steps">
+            <li><code>cd backend</code></li>
+            <li><code>python -m venv venv<br>venv\Scripts\activate</code> (Windows)</li>
+            <li><code>pip install -r requirements.txt</code></li>
+            <li>Add <code>GEMINI_API_KEY=your_key_here</code> to <code>.env</code></li>
+            <li><code>python main_fixed_fixed.py</code> (runs on <code>http://localhost:8000</code>)</li>
+          </ol>
+        </div>
+        <div class="setup-section">
+          <h3>Frontend (Next.js React)</h3>
+          <ol class="setup-steps">
+            <li><code>cd frontend</code></li>
+            <li><code>npm install</code></li>
+            <li><code>npm run dev</code> (runs on <code>http://localhost:3000</code>)</li>
+          </ol>
+          <p style="margin-top: 1.5rem;"><strong>Open http://localhost:3000</strong> → Upload PDF → Chat!</p>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 2rem;">
+        <a href="https://github.com/yourusername/chat-with-pdf" class="btn btn-outline" target="_blank">⭐ Star on GitHub</a>
+        <a href="#" class="btn" onclick="alert('Get your free Gemini API key at https://aistudio.google.com/app/apikey')">Get Gemini API Key</a>
+      </div>
+    </section>
+  </div>
+
+  <footer class="footer">
+    <div class="tech-stack">
+      <span class="tech-tag">Gemini 2.5 Flash</span>
+      <span class="tech-tag">Sentence Transformers</span>
+      <span class="tech-tag">FastAPI</span>
+      <span class="tech-tag">Next.js 14</span>
+      <span class="tech-tag">React 18</span>
+      <span class="tech-tag">Tailwind CSS</span>
+    </div>
+    <p>&copy; 2024 Chat with PDF. Built with RAG (Retrieval-Augmented Generation). Source code on GitHub.</p>
+  </footer>
+</body>
+</html>
